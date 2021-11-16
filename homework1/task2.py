@@ -10,7 +10,7 @@ from typing import Sequence
 def check_fibonacci(data: Sequence[int]) -> bool:
     if len(data) < 3:
         return False
-    for i in range(len(data) - 3):
+    for i in range(len(data) - 2):
         if not data[i + 2] == data[i + 1] + data[i]:
             return False
     return True
