@@ -1,4 +1,11 @@
-def check_power_of_2(a: int) -> bool:
-    if a == 0:
+def check_if_power_of_2(number: int) -> bool:
+    """
+
+    Check if integer is a power of 2
+
+    :param number: Integer to check
+    :return: Is number a power of 2 or not
+    """
+    if number == 0:
         return False
-    return not (bool(a & (a - 1)))
+    return not (bool(number & (number - 1)))
