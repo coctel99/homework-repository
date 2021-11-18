@@ -35,8 +35,3 @@ def custom_range(iterable: Iterable[any], iter_range: any, *args) -> List[any]:
     else:
         return list(iterable)[list(iterable).index(args[0]):
                               list(iterable).index(iter_range):step]
-
-
-if __name__ == '__main__':
-    print(custom_range("abcdefghijklmnopqrstuvwxyz", "g", "p", 2))
-    print(custom_range([1, 2, 3, 4, 5, 6, 7], 3, 6, 2))
