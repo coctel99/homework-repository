@@ -19,5 +19,12 @@ from typing import Any, List
 
 
 def combinations(*args: List[Any]) -> List[List]:
+    """
+
+    Find all possible combinations of items of lists
+
+    :param args: A number of lists to make combinations from
+    :return: List of all combinations of elements of given lists
+    """
     all_combs = [list(x) for x in product(*args)]
     return all_combs

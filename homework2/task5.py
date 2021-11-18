@@ -21,6 +21,24 @@ from typing import Iterable, List
 
 
 def custom_range(iterable: Iterable[any], iter_range: any, *args) -> List[any]:
+    """
+
+    Get arranged list from any iterable. Works backwards too
+
+    No args: Get a list from 0 element of given iterable to the given
+    iter_range value
+
+    1 args: Get a list from given iterable from iter_range to the args value
+
+    2 args: Get a list from given iterable from iter_range to the args 1st
+    value with step of args 2nd value
+
+    :param iterable: Any iterable of values
+    :param iter_range: End of the range value if no args, otherwise the
+    beginning of the range
+    :param args: Optional. 1st - end of the range value, 2nd - step size
+    :return: A range from given iterable
+    """
     if not args:
         return list(iterable)[:list(iterable).index(iter_range)]
     if len(args) > 2:

@@ -21,8 +21,12 @@ from typing import List, Tuple
 
 
 def major_and_minor_elem(inp: List) -> Tuple[int, int]:
+    """
+
+    Find the major and minor element of the list
+
+    :param inp: List to check
+    :return: Tuple of 2 elements: major and minor
+    """
     inp = sorted(set(inp), key=inp.count, reverse=True)
     return inp[0], inp[1]
-
-
-print(major_and_minor_elem([1, 1, 2, 2, 2, 1, 2, 2]))

@@ -33,7 +33,7 @@ def test_count_punctuation_chars():
 def test_count_non_ascii_chars():
     """Testing that count_non_ascii_chars function gives correct result on
     text"""
-    assert count_non_ascii_chars("./tests/homework2/data.txt") == 2972
+    assert count_non_ascii_chars("./tests/homework2/data.txt") == 2971
 
 
 def test_get_most_common_non_ascii_char():

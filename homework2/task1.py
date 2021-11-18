@@ -10,13 +10,20 @@ from typing import List
 
 
 def get_longest_diverse_words(file_path: str) -> List[str]:
-    with open(file=file_path, mode="r", encoding="unicode-escape") as fi:
+    """
+
+    Find 10 words with largest amount of unique symbols
+
+    :param file_path: Path to file with text
+    :return: List of 10 most diverse words
+    """
+    with open(file=file_path, mode="r", encoding="unicode-escape",
+              errors="ignore") as fi:
         unique_words = set()
         for line in fi:
             for word in line.strip().split():
                 if word not in unique_words:
                     unique_words.update([word])
-    fi.close()
     most_diverse = dict((x, len(set(x))) for x in unique_words)
     most_diverse = (sorted(sorted(most_diverse),
                            key=most_diverse.get,
@@ -25,7 +32,15 @@ def get_longest_diverse_words(file_path: str) -> List[str]:
 
 
 def get_rarest_char(file_path: str) -> str:
-    with open(file=file_path, mode="r", encoding="unicode-escape") as fi:
+    """
+
+    Find the rarest character in the text
+
+    :param file_path: Path to file with text
+    :return: The rarest character in the text
+    """
+    with open(file=file_path, mode="r", encoding="unicode-escape",
+              errors="ignore") as fi:
         rarest = {}
         for line in fi:
             for char in list(line.strip()):
@@ -33,36 +48,57 @@ def get_rarest_char(file_path: str) -> str:
                     rarest[char] = 1
                 else:
                     rarest[char] += 1
-    fi.close()
     rarest = min(rarest, key=rarest.get)
     return rarest
 
 
 def count_punctuation_chars(file_path: str) -> int:
+    """
+
+    Get the number of punctuation characters in the text
+
+    :param file_path: Path to file with text
+    :return: Number of punctuation characters in the text
+    """
     punct_chars_list = list(",.:;!?&*()[]{}\'\"<>«»—")
     punct_chars = 0
-    with open(file=file_path, mode="r", encoding="unicode-escape") as fi:
+    with open(file=file_path, mode="r", encoding="unicode-escape",
+              errors="ignore") as fi:
         for line in fi:
             for char in list(line.strip()):
                 if char in punct_chars_list:
                     punct_chars += 1
-    fi.close()
     return punct_chars
 
 
 def count_non_ascii_chars(file_path: str) -> int:
+    """
+
+    Get the number of non-ascii characters
+
+    :param file_path: Path to file with text
+    :return: Number of non-ascii characters
+    """
     non_ascii_chars = 0
-    with open(file=file_path, mode="r", encoding="unicode-escape") as fi:
+    with open(file=file_path, mode="r", encoding="unicode-escape",
+              errors="ignore") as fi:
         for line in fi:
             for char in list(line.strip()):
                 if len(str(char).encode("utf-8")) > 1:
                     non_ascii_chars += 1
-    fi.close()
     return non_ascii_chars
 
 
 def get_most_common_non_ascii_char(file_path: str) -> str:
-    with open(file=file_path, mode="r", encoding="unicode-escape") as fi:
+    """
+
+    Get the most common non-ascii character in the text
+
+    :param file_path: Path to file with text
+    :return: The most common non-ascii character in the text
+    """
+    with open(file=file_path, mode="r", encoding="unicode-escape",
+              errors="ignore") as fi:
         non_ascii_chars = {}
         for line in fi:
             for char in list(line.strip()):
@@ -71,6 +107,5 @@ def get_most_common_non_ascii_char(file_path: str) -> str:
                         non_ascii_chars[char] = 1
                     else:
                         non_ascii_chars[char] += 1
-    fi.close()
     most_common = max(non_ascii_chars, key=non_ascii_chars.get)
     return most_common
