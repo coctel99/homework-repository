@@ -12,18 +12,24 @@ from typing import Tuple
 
 
 def find_maximum_and_minimum(file_name: str) -> Tuple[int, int]:
-    with open(file_name) as fi:
-        for n, line in enumerate(fi):
-            if not line == "\n":
-                line = line.replace("\n", "")
-                if n == 0:
-                    max_val = int(line)
-                    min_val = int(line)
-                else:
-                    if int(line) > max_val:
-                        max_val = int(line)
-                    if int(line) < min_val:
-                        min_val = int(line)
+    """
 
-    fi.close()
+    Get the maximal and minimal values from file
+
+    :param file_name: Name or route of the file to check
+    :return: Tuple of 2 values: maximal and minimal
+    """
+
+    with open(file_name) as fi:
+        for line_number, line in enumerate(fi):
+            if line != "\n":
+                line = int(line.strip())
+                if line_number == 0:
+                    max_val, min_val = line, line
+                else:
+                    if line > max_val:
+                        max_val = line
+                    if line < min_val:
+                        min_val = line
+
     return max_val, min_val
