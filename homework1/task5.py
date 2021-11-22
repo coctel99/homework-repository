@@ -10,11 +10,19 @@ from typing import List
 
 
 def find_maximal_subarray_sum(nums: List[int], k: int) -> int:
+    """
+
+    Get maximal sum of elements of subarray with length less or equal to k
+
+    :param nums: List of integers to check
+    :param k: Subarray length
+    :return: Maximal sum of elements
+    """
     if k > len(nums):
         k = len(nums)
     k_sum = 0
     for i in range(len(nums) - k + 1):
-        if sum(nums[i:i+k]) > k_sum:
-            k_sum = sum(nums[i:i+k])
+        if sum(nums[i: i + k]) > k_sum:
+            k_sum = sum(nums[i: i + k])
 
     return k_sum
