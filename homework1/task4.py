@@ -5,19 +5,23 @@ compute how many tuples (i, j, k, l) there are such
 that A[i] + B[j] + C[k] + D[l] is zero.
 We guarantee, that all A, B, C, D have same length of N where 0 ≤ N ≤ 1000.
 """
+from itertools import product
 from typing import List
 
 
-def check_sum_of_four(a: List[int], b: List[int],
-                      c: List[int], d: List[int]) -> int:
-    num_of_tuples = 0
+def check_sum_of_four(*args: List[int]) -> int:
+    """
 
-    if a and b and c and d:
-        for _, i_val in enumerate(a):
-            for _, j_val in enumerate(b):
-                for _, k_val in enumerate(c):
-                    for _, l_val in enumerate(d):
-                        if i_val + j_val + k_val + l_val == 0:
-                            num_of_tuples += 1
+    Get number of tuples with sum of zero from four lists having one element
+    from each list
 
-    return num_of_tuples
+    :param args: Lists to check
+    :return: Number of tuples where sum of elements is zero
+    """
+    list_a, list_b, list_c, list_d, *_ = args
+    number_of_tuples = 0
+    combinations = product(list_a, list_b, list_c, list_d)
+    for elements in combinations:
+        if sum(elements) == 0:
+            number_of_tuples += 1
+    return number_of_tuples
