@@ -26,8 +26,8 @@ Would give out cached value up to times number only. Example:
     '2'
 """
 
-from typing import Callable
 from functools import wraps
+from typing import Callable
 
 
 def cache_number_of_times(times: int = None):
