@@ -16,6 +16,11 @@ def file_content(request):
 
 @pytest.fixture(scope="function")
 def create_temporary_file(file_content):
+    """
+    Create test text file with specified content before the test
+    and clear up after the test
+    :param file_content: Fixture, passing file content to this fixture
+    """
     with open(TEST_FILE_PATH, "w") as fi_correct:
         fi_correct.write(file_content)
         fi_correct.close()
