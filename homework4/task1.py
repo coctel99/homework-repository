@@ -25,7 +25,6 @@ You will learn:
 *** https://docs.python.org/3/tutorial/errors.html#handling-exceptions
 **** https://docs.python.org/3/tutorial/errors.html#raising-exceptions
 """
-import os
 
 
 def is_magic_number(path: str) -> bool:
