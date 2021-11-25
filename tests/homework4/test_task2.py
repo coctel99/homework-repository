@@ -6,6 +6,7 @@ TEXT_STRING = "Some ii mocked text i"
 
 
 def fake_urlopen(url: str, timeout: int = None):
+    """Get fake url response object to substitute url open function."""
     class FakeUrl:
         @staticmethod
         def read():
