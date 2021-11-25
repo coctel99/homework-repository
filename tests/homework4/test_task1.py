@@ -26,7 +26,8 @@ def create_temporary_file(file_content):
 
 @pytest.mark.parametrize('file_content', ["1"], indirect=True)
 def test_positive_case(create_temporary_file, file_content):
-    """Testing that magic number in the first line of a file gives True."""
+    """Testing that magic number in the first line of a file
+    gives True."""
     if os.path.exists(TEST_FILE_PATH):
         assert is_magic_number(TEST_FILE_PATH)
     else:
@@ -35,7 +36,8 @@ def test_positive_case(create_temporary_file, file_content):
 
 @pytest.mark.parametrize('file_content', ["123"], indirect=True)
 def test_negative_case(create_temporary_file, file_content):
-    """Testing that non-magic number in the first line of a file gives False."""
+    """Testing that non-magic number in the first line of a file
+    gives False."""
     if os.path.exists(TEST_FILE_PATH):
         assert not is_magic_number(TEST_FILE_PATH)
     else:
