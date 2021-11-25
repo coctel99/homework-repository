@@ -2,7 +2,6 @@ import unittest.mock as mock
 
 from homework4.task2 import count_dots_on_i
 
-
 TEXT_STRING = "Some ii mocked text i"
 
 
