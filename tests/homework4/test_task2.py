@@ -18,5 +18,7 @@ def fake_urlopen(url: str, timeout: int = None):
 
 
 def test_count_i():
+    """Testing that function can count 'i' letters by mocked url open
+    function."""
     with mock.patch('urllib.request.urlopen', new=fake_urlopen):
         assert count_dots_on_i("some_url") == TEXT_STRING.count("i")
