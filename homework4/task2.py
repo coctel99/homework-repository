@@ -24,6 +24,11 @@ from urllib.request import URLError
 
 
 def count_dots_on_i(url: str) -> int:
+    """
+    Get number of 'i' letters in the HTML by the specified URL
+    :param url: URL to check
+    :return: Number of 'i' letters
+    """
     try:
         number_of_i = 0
         contents = urllib.request.urlopen(url, timeout=10).readlines()
