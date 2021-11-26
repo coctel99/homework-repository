@@ -1,5 +1,6 @@
-from homework4.task4 import fizzbuzz
 import pytest
+
+from homework4.task4 import fizzbuzz
 
 
 def test_get_fizzbuzz_numbers():
