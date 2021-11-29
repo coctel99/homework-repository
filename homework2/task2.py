@@ -29,4 +29,4 @@ def major_and_minor_elem(inp: List) -> Tuple[int, int]:
     :return: Tuple of 2 elements: major and minor
     """
     inp = sorted(set(inp), key=inp.count, reverse=True)
-    return inp[0], inp[1]
+    return inp[0], inp[-1]
