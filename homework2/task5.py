@@ -20,7 +20,7 @@ assert = custom_range(string.ascii_lowercase, 'p', 'g', -2) == /
 from typing import Iterable, List
 
 
-def custom_range(iterable: Iterable[any], iter_range: any, *args) -> List[any]:
+def make_custom_range(iterable: Iterable[any], iter_range: any, *args) -> List[any]:
     """
 
     Get arranged list from any iterable. Works backwards too
@@ -39,8 +39,10 @@ def custom_range(iterable: Iterable[any], iter_range: any, *args) -> List[any]:
     :param args: Optional. 1st - end of the range value, 2nd - step size
     :return: A range from given iterable
     """
+    iterable = list(iterable)
     if not args:
-        return list(iterable)[:list(iterable).index(iter_range)]
+        end_index = iterable.index(iter_range)
+        return iterable[:end_index]
     if len(args) > 2:
         args = args[:3]
     if len(args) < 2:
@@ -48,8 +50,10 @@ def custom_range(iterable: Iterable[any], iter_range: any, *args) -> List[any]:
     else:
         step = args[1]
     if args[0] > iter_range:
-        return list(iterable)[list(iterable).index(iter_range):
-                              list(iterable).index(args[0]):step]
+        start_index = iterable.index(iter_range)
+        end_index = iterable.index((args[0]))
+        return iterable[start_index:end_index:step]
     else:
-        return list(iterable)[list(iterable).index(args[0]):
-                              list(iterable).index(iter_range):step]
+        start_index = iterable.index((args[0]))
+        end_index = iterable.index(iter_range)
+        return iterable[start_index:end_index:step]
