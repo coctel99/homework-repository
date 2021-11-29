@@ -20,7 +20,8 @@ assert = custom_range(string.ascii_lowercase, 'p', 'g', -2) == /
 from typing import Iterable, List
 
 
-def make_custom_range(iterable: Iterable[any], iter_range: any, *args) -> List[any]:
+def make_custom_range(iterable: Iterable[any],
+                      iter_range: any, *args) -> List[any]:
     """
 
     Get arranged list from any iterable. Works backwards too
