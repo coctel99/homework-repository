@@ -19,6 +19,7 @@ assert val_1 is val_2
 
 """
 from typing import Callable
+from functools import wraps
 
 
 def cache(func: Callable) -> Callable:
@@ -32,6 +33,7 @@ def cache(func: Callable) -> Callable:
     """
     cached = {}
 
+    @wraps(func)
     def wrapper(*args):
         """
 
