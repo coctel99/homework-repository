@@ -29,10 +29,6 @@ def my_precious_logger(text: str):
     :param text: Text to print
     """
     if text.startswith("error"):
-        sys.stderr = open("stderr.txt", "w")
         print(text, file=sys.stderr)
-        sys.stderr.close()
     else:
-        sys.stdout = open("stdout.txt", "w")
         print(text)
-        sys.stdout.close()
