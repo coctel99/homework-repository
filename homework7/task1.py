@@ -26,6 +26,6 @@ def find_occurrences(tree: dict, element: Any) -> int:
         for val in tuple(tree):
             number_of_occurrences += find_occurrences(val, element)
     else:
-        if element == tree:
+        if element == tree and type(element) == type(tree):
             number_of_occurrences += 1
     return number_of_occurrences
