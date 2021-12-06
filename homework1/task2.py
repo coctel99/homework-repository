@@ -6,8 +6,10 @@ We guarantee, that the given sequence contain >= 0 integers inside.
 """
 from math import log, sqrt
 from typing import Sequence
+from functools import lru_cache
 
 
+@lru_cache
 def check_if_fibonacci_number(number: int) -> bool:
     """
 
@@ -23,8 +25,7 @@ def check_if_fibonacci_number(number: int) -> bool:
     if sqrt(5 * number ** 2 + 4).is_integer() or \
             sqrt(5 * number ** 2 - 4).is_integer():
         return True
-    else:
-        return False
+    return False
 
 
 def get_position_in_fibonacci_sequence(number: int) -> int:
