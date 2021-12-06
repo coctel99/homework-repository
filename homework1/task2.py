@@ -4,9 +4,9 @@ Given a cell with "it's a fib sequence" from slideshow,
     and returns if the given sequence is a Fibonacci sequence
 We guarantee, that the given sequence contain >= 0 integers inside.
 """
+from functools import lru_cache
 from math import log, sqrt
 from typing import Sequence
-from functools import lru_cache
 
 
 @lru_cache
