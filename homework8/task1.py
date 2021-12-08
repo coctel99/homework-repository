@@ -1,6 +1,3 @@
-from functools import wraps
-
-
 class KeyValueStorage:
     def __init__(self, path_to_file: str):
         try:
@@ -28,4 +25,3 @@ if __name__ == '__main__':
     print(a.__dict__)
     b = B()
     pass
-
