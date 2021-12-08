@@ -59,15 +59,14 @@ def cache_number_of_times(times: int = None):
             if it was already executed
             """
             nonlocal cached_times
-            if times is not None:
+            if times:
                 cached_times -= 1
-                if cached_times < 0:
-                    cached[args] = None
+                if cached_times < 0 and args in cached:
+                    cached.pop(args)
             if args in cached:
                 return cached[args]
-            else:
-                cached[args] = func(*args)
-                return func(*args)
+            cached[args] = func(*args)
+            return func(*args)
 
         return wrapper
 
