@@ -14,11 +14,13 @@ def instances_counter(cls):
     """Adds a class methods get_created_instances and
     reset_instances_counter."""
     cls.inst_counter = 0
+    original_init = cls.__init__
 
     @wraps(cls)
     def init_with_inst_counter(*args, **kwargs):
         """Increment counter on initialization of new instances."""
         cls.inst_counter += 1
+        original_init(*args, **kwargs)
 
     def get_created_instances(*args):
         """Get number of created instances."""
