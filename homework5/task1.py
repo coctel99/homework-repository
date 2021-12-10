@@ -55,16 +55,13 @@ class Student:
         self.first_name = first_name
         self.last_name = last_name
 
-    def do_homework(self, homework: Homework):
+    @staticmethod
+    def do_homework(homework: Homework):
         """
         Return homework if it is active, else return None
         :rtype: object
         """
-        if homework.is_active():
-            return homework
-        else:
-            print('You are late')
-            return None
+        return homework if homework.is_active() else print('You are late')
 
 
 class Teacher:
@@ -72,7 +69,8 @@ class Teacher:
         self.first_name = first_name
         self.last_name = last_name
 
-    def create_homework(self, text, deadline):
+    @staticmethod
+    def create_homework(text, deadline):
         """
         Create new instance of Homework class
         :param text: Text of the homework
