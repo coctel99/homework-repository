@@ -34,7 +34,8 @@ def test_original_init_is_not_overwritten():
 
 
 def test_two_instances():
-    """Testing that different class instances have different key-value storages."""
+    """Testing that different class instances have different key-value
+    storages."""
     a = SomeClass(FILE_PATH)
     b = SomeClass(FILE_PATH2)
     assert a["name"] == "Ivan" and b["name"] == "Alex"
