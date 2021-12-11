@@ -1,7 +1,7 @@
 from homework8.task1 import make_key_value_storage
 
-FILE_PATH = "test.txt"
-FILE_PATH2 = "test2.txt"
+FILE_PATH = "./tests/homework8/test.txt"
+FILE_PATH2 = "./tests/homework8/test.txt"
 
 
 @make_key_value_storage
