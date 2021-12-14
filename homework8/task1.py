@@ -23,7 +23,7 @@ def make_key_value_storage(cls):
             with open(path_to_file) as fi:
                 for line in fi:
                     key, value = line.strip().split("=")
-                    if key.count(" ") > 0:
+                    if not key.isidentifier():
                         raise ValueError(key)
                     if getattr(self, key, None) is None:
                         setattr(self, key, value)
