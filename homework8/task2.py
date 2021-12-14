@@ -8,41 +8,57 @@ def _create_connection(db):
     return conn.cursor()
 
 
-def make_a_collection(cls):
-    """
-    Make a database table data collection from specified class.
+def _get_db_value(db, table_name, name_value):
+    """Update instance collection value with db value."""
+    cursor = _create_connection(db)
+    cursor.execute(f"SELECT * from {table_name} where name = '{name_value}'")
+    return cursor.fetchone()
 
-    Wrapper store database records in 'collection' dict. Dict keys
-    are made from the first database table column, which is assumed
-    to store a primary key. Dict values contain corresponding to key
-    values data rows.
 
-    :param cls: Class to decorate
-    :return: Decorated class
-    """
-    class TableData:
-        original_init = cls.__init__
+def _update_values_from_db(db, table_name):
+    """Update all instance collection values."""
+    cursor = _create_connection(db)
+    cursor.execute(f"SELECT * from {table_name}")
+    return cursor.fetchall()
 
-        def __init__(self, database_name, table_name, *args, **kwargs):
-            self.original_init(*args, **kwargs)
-            self.collection = {}
-            cursor = _create_connection(database_name)
-            cursor.execute(f'SELECT * from {table_name}')
-            while row := cursor.fetchone():
-                # Assuming that table key column is the first one
-                key = row[0]
-                self.collection.update({key: row})
 
-        def __iter__(self) -> Iterator:
-            return iter(self.collection.values())
+class TableData:
+    def __init__(self, database_name, table_name):
+        self.collection = {}
+        self.database_name = database_name
+        self.table_name = table_name
+        cursor = _create_connection(database_name)
+        cursor.execute(f'SELECT * from {table_name}')
+        while row := cursor.fetchone():
+            # Assuming that table key column is the first one
+            key = row[0]
+            self.collection.update({key: row})
 
-        def __contains__(self, item: object) -> bool:
-            return True if item in self.collection else False
+    def __iter__(self) -> Iterator:
+        data = _update_values_from_db(self.database_name, self.table_name)
+        for row in data:
+            key = row[0]
+            self.collection.update({key: row})
+        return iter(self.collection.values())
 
-        def __len__(self) -> int:
-            return len(self.collection)
+    def __contains__(self, item: object) -> bool:
+        data = _update_values_from_db(self.database_name, self.table_name)
+        for row in data:
+            key = row[0]
+            self.collection.update({key: row})
+        return True if item in self.collection else False
 
-        def __getitem__(self, item: object):
-            return self.collection.get(item)
+    def __len__(self) -> int:
+        data = _update_values_from_db(self.database_name, self.table_name)
+        for row in data:
+            key = row[0]
+            self.collection.update({key: row})
+        return len(self.collection)
 
-    return TableData
+    def __getitem__(self, item: object):
+        # We don't have to update all collection if we need only one element
+        val = _get_db_value(self.database_name, self.table_name, item)
+        if not val:
+            raise ValueError(f'{item} not in collection')
+        self.collection.update({item: val})
+        return self.collection.get(item)
