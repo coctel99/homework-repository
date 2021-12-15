@@ -11,10 +11,10 @@ file2.txt:
 >>> list(merge_sorted_files(["file1.txt", "file2.txt"]))
 [1, 2, 3, 4, 5, 6]
 """
-from pathlib import Path
-from typing import List, Union, Iterator
-from itertools import zip_longest
 from contextlib import ExitStack
+from itertools import zip_longest
+from pathlib import Path
+from typing import Iterator, List, Union
 
 
 def merge_sorted_files(file_list: List[Union[Path, str]]) -> Iterator:
@@ -24,7 +24,7 @@ def merge_sorted_files(file_list: List[Union[Path, str]]) -> Iterator:
     :return: Iterator with integers from specified files
     """
     with ExitStack() as stack:
-        files = [stack.enter_context(open(file_name)) for file_name in file_list]
+        files = [stack.enter_context(open(f_name)) for f_name in file_list]
         merged_string = []
 
         for lines in zip_longest(*files):
