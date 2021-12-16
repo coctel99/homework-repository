@@ -63,7 +63,7 @@ class Homework:
 
 
 class HomeworkResult:
-    def __init__(self, author, homework: Homework,
+    def __init__(self, author: "Student", homework: Homework,
                  solution: str):
         if type(homework) is not Homework:
             raise TypeError("Not a Homework object")
