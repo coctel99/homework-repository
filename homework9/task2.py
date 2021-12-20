@@ -4,6 +4,9 @@ Do it both ways: as a class and as a generator.
 >>> with suppressor(IndexError):
 ...    [][2]
 """
+import contextlib
+
+from typing import List
 
 
 class Suppressor:
@@ -18,7 +21,18 @@ class Suppressor:
             return True
 
 
+@contextlib.contextmanager
+def suppress_exception(exception: type(Exception)):
+    try:
+        yield
+    except exception:
+        pass
+
+
 if __name__ == '__main__':
     with Suppressor(IndexError):
         [][2]
+    with suppress_exception(IndexError):
+        [][2]
+        a = 1 / 0
     print()
