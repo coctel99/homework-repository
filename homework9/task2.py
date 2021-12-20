@@ -6,8 +6,6 @@ Do it both ways: as a class and as a generator.
 """
 import contextlib
 
-from typing import List
-
 
 class Suppressor:
     def __init__(self, exception: type(Exception)):
@@ -30,9 +28,12 @@ def suppress_exception(exception: type(Exception)):
 
 
 if __name__ == '__main__':
+    num = 0
     with Suppressor(IndexError):
         [][2]
+        num = 1
     with suppress_exception(IndexError):
         [][2]
         a = 1 / 0
-    print()
+        num = 2
+    print(num)
