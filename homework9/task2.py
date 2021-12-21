@@ -25,15 +25,3 @@ def suppress_exception(exception: type(Exception)):
         yield
     except exception:
         pass
-
-
-if __name__ == '__main__':
-    num = 0
-    with Suppressor(IndexError):
-        [][2]
-        num = 1
-    with suppress_exception(IndexError):
-        [][2]
-        a = 1 / 0
-        num = 2
-    print(num)
