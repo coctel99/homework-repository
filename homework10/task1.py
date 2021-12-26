@@ -118,6 +118,12 @@ async def get_comp_data(row: ResultSet):
                 comp_pe = None
             comp.pe = comp_pe
 
+            comp_current_price = comp_snapshot_tag.find(text="Prev. Close")
+            comp_current_price = comp_current_price.find_parent(
+                class_="snapshot__data-item")
+            comp_current_price = comp_current_price.contents[0].strip()
+            comp.current_price = comp_current_price
+
         if i == 7:
             comp_year_change = col.find_all("span")[1]
             comp_year_change = comp_year_change.text
