@@ -43,6 +43,14 @@ WEB_URL = "https://markets.businessinsider.com"
 SNP_URL = WEB_URL + "/index/components/s&p_500?p="
 
 
+# async def get_current_rate():
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(url) as response:
+#             # time.sleep(1)
+#             data = await response.read()
+#     return data
+
+
 class Company:
     def __init__(self, name=None, code=None, current_price=None,
                  pe=None, year_change=None):
@@ -62,7 +70,12 @@ class Company:
     #     self.pe = pe
 
 
-async def parse_page(url):
+async def parse_page(url: str):
+    """
+    Get html from url and asynchronously parse it with BeautifulSoup
+    :param url: URL address to check
+    :return: BeautifulSoup parser object
+    """
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             # time.sleep(1)
@@ -71,6 +84,15 @@ async def parse_page(url):
 
 
 async def get_comp_data(row: ResultSet):
+    """
+    Get company info
+
+    Take company link from the first column and parse this company page
+    to get its name, code and P/E Ratio. Then take yearly price change
+    in percents from the last column.
+    :param row: Row of data table
+    :return: Company object with parsed attributes
+    """
     comp = Company()
     for i, col in enumerate(row.find_all("td")):
         if i == 0:
@@ -106,6 +128,11 @@ async def get_comp_data(row: ResultSet):
 
 
 async def get_market_data(url):
+    """
+    Parse market S&P 500 page to get data table
+    :param url: URL address to check
+    :return: Data table body
+    """
     snp500_page = await parse_page(url)
     table = snp500_page.find(class_="table__tbody")
     table_body = table.find_all("tr")
@@ -162,6 +189,10 @@ async def get_market_data(url):
 
 
 async def get_data_from_urls():
+    """
+    Get all Market Insider companies data
+    :return:
+    """
     urls = []
     # Add all 11 url pages
     for i in range(1, 12):
