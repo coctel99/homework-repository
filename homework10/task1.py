@@ -34,23 +34,16 @@ For requesting aiohttp
 """
 import asyncio
 import time
-import aiohttp
-from bs4 import BeautifulSoup, ResultSet, NavigableString
 from typing import Union
+
+import aiohttp
+from bs4 import BeautifulSoup, NavigableString, ResultSet
 from tqdm import tqdm
 
 WEB_URL = "https://markets.businessinsider.com"
 SNP_URL = WEB_URL + "/index/components/s&p_500?p="
 SLEEP_DELAY = 2
 TOP_N = 10
-
-
-# async def get_current_rate():
-#     async with aiohttp.ClientSession() as session:
-#         async with session.get(url) as response:
-#             # time.sleep(1)
-#             data = await response.read()
-#     return data
 
 
 class Company:
@@ -63,15 +56,6 @@ class Company:
         self.year_change = year_change
         self.val_lowest = val_lowest
         self.val_highest = val_highest
-
-    # async def set_name(self, name):
-    #     self.name = name
-    #
-    # async def set_code(self, code):
-    #     self.code = code
-    #
-    # async def set_pe(self, pe):
-    #     self.pe = pe
 
 
 async def parse_page(url: str, delay=None):
@@ -110,8 +94,10 @@ def find_value_by_text(comp_snapshot_tag: Union[NavigableString,
     :param text: Tags' text
     :return: Float value if tag if found, else None
     """
+    if comp_snapshot_tag is None:
+        return None
     tag = comp_snapshot_tag.find(text=text)
-    if not tag:
+    if tag is None:
         return None
     tag = tag.find_parent(
         class_="snapshot__data-item")
@@ -152,28 +138,12 @@ async def get_comp_data(row: ResultSet):
                 comp_page = await parse_page(comp_url, SLEEP_DELAY)
                 print("SECOND TRY: ", comp_name)
                 comp_snapshot_tag = comp_page.find(class_="snapshot")
-            # comp_pe_tag = comp_snapshot_tag.find(text="P/E Ratio")
-            # Set pe to None if there are no P/E Ratio for this company
-            # if comp_pe_tag:
-            #     comp_pe_tag = comp_pe_tag.find_parent(
-            #         class_="snapshot__data-item")
-            #     comp_pe = _str_to_float(comp_pe_tag.contents[0])
-            # else:
-            #     comp_pe = None
             comp.pe = find_value_by_text(comp_snapshot_tag,
                                          "P/E Ratio")
-
-            # comp_val_highest_tag = comp_snapshot_tag.find(text="52 Week High")
-            # comp_val_highest_tag = comp_val_highest_tag.find_parent(
-            #     class_="snapshot__data-item")
-            # comp_val_highest = _str_to_float(comp_val_highest_tag.contents[0])
-            # comp.val_highest = comp_val_highest
             comp.val_highest = find_value_by_text(comp_snapshot_tag,
                                                   "52 Week High")
-
             comp.val_lowest = find_value_by_text(comp_snapshot_tag,
                                                  "52 Week Low")
-
             comp.current_price = find_value_by_text(comp_snapshot_tag,
                                                     "Prev. Close")
         if i == 7:
@@ -195,55 +165,6 @@ async def get_market_data(url):
     table = snp500_page.find(class_="table__tbody")
     table_body = table.find_all("tr")
     return table_body
-
-    # for row in table:
-    #     company = Company()
-    #     comp_name = None
-    #     comp_code = None
-    #     comp_pe = None
-    #     comp_year_change = None
-    #     for i, col in enumerate(row.find_all("td")):
-    #         Taking company name from the first column
-    #         if i == 0:
-    #             comp_url = WEB_URL + col.find("a").get('href')
-    #             comp_page = await parse_page(comp_url)
-    #
-    #             comp_name_tag = comp_page.find(class_="price-section__label")
-    #             comp_code_tag = comp_page.find(
-    #                 class_="price-section__category")
-    #             comp_code_tag = comp_code_tag.find("span")
-    #             comp_snapshot_tag = comp_page.find(class_="snapshot")
-    #             comp_pe_tag = comp_snapshot_tag.find(text="P/E Ratio")
-    #             if comp_pe_tag:
-    #                 comp_pe_tag = comp_pe_tag.find_parent(
-    #                     class_="snapshot__data-item")
-    #
-    #             comp_name = comp_name_tag.text.strip()
-    #             names.append(comp_name)
-    #             comp_code = comp_code_tag.text.split(", ")[1]
-    #             if comp_pe_tag:
-    #                 comp_pe = comp_pe_tag.contents[0].strip()
-    #             else:
-    #                 comp_pe = None
-    #
-    #             await company.set_name(comp_name)
-    #             await company.set_code(comp_code)
-    #             await company.set_pe(comp_pe)
-    #             pass
-    #         Taking company stocks rise or fall from the las column
-    #         if i == 7:
-    #             # WE need change in percent which is the second tag
-    #             comp_year_change = col.find_all("span")[1]
-    #             comp_year_change = comp_year_change.text
-    #             company.year_change = comp_year_change
-    #
-    #             companies.append(Company(name=comp_name, code=comp_code,
-    #                                      pe=comp_pe,
-    #                                      year_change=comp_year_change))
-    #             pass
-    #         pass
-    #     pass
-    # return companies_list
 
 
 async def get_companies_list():
@@ -287,7 +208,9 @@ def scrap_market_insider_data():
     """
     companies_list = asyncio.run(get_companies_list())
     # Top-10 companies with highest current price
-    top_n_current_price = sorted(companies_list, key=lambda x: x.current_price,
+    top_n_current_price = sorted(companies_list,
+                                 key=lambda x: (x.current_price is None,
+                                                x.current_price),
                                  reverse=True)
     top_n_current_price = top_n_current_price[:TOP_N]
     top_n_current_price_readable = [(comp.name, comp.current_price)
@@ -301,7 +224,9 @@ def scrap_market_insider_data():
                                 for comp in top_n_lowest_pe]
 
     # Top-10 companies with highest yearly price growth percent
-    top_n_highest_growth = sorted(companies_list, key=lambda x: x.year_change,
+    top_n_highest_growth = sorted(companies_list,
+                                  key=lambda x: (x.year_change is None,
+                                                 x.year_change),
                                   reverse=True)
     top_n_highest_growth = top_n_highest_growth[:TOP_N]
     top_n_highest_growth_readable = [(comp.name, comp.year_change)
@@ -325,7 +250,8 @@ def scrap_market_insider_data():
                                   and comp.val_lowest is not None
                                   else None) for comp in top_n_for_income]
 
-    return top_n_for_income_readable
+    return (top_n_current_price_readable, top_n_lowest_pe_readable,
+            top_n_highest_growth_readable, top_n_for_income_readable)
 
 
 if __name__ == '__main__':
