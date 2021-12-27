@@ -34,6 +34,7 @@ For requesting aiohttp
 """
 import asyncio
 import time
+import json
 from typing import Union
 
 import aiohttp
@@ -58,7 +59,7 @@ class Company:
         self.val_highest = val_highest
 
 
-async def parse_page(url: str, delay=None):
+async def parse_page(url: str, delay=None) -> BeautifulSoup:
     """
     Get html from url and asynchronously parse it with BeautifulSoup
     :param delay: Amount of seconds to wait before reading the data
@@ -73,7 +74,7 @@ async def parse_page(url: str, delay=None):
     return BeautifulSoup(data, "html.parser")
 
 
-def _str_to_float(val: str):
+def _str_to_float(val: str) -> float:
     """
     Removes special symbols and converts a string to a float
     :param val: String to convert
@@ -87,7 +88,8 @@ def _str_to_float(val: str):
 
 
 def find_value_by_text(comp_snapshot_tag: Union[NavigableString,
-                                                BeautifulSoup], text: str):
+                                                BeautifulSoup],
+                       text: str) -> None or float:
     """
     Get value by tags' text
     :param comp_snapshot_tag:
@@ -106,7 +108,7 @@ def find_value_by_text(comp_snapshot_tag: Union[NavigableString,
     return val
 
 
-async def get_comp_data(row: ResultSet):
+async def get_comp_data(row: ResultSet) -> object:
     """
     Get company info
 
@@ -155,7 +157,7 @@ async def get_comp_data(row: ResultSet):
     return comp
 
 
-async def get_market_data(url):
+async def get_market_data(url) -> ResultSet:
     """
     Parse market S&P 500 page to get data table
     :param url: URL address to check
@@ -167,7 +169,7 @@ async def get_market_data(url):
     return table_body
 
 
-async def get_companies_list():
+async def get_companies_list() -> list:
     """
     Get all Market Insider companies data
     :return:
@@ -196,6 +198,17 @@ async def get_companies_list():
     return companies_list
 
 
+def serialize_objects(cls_list: list, filename: str):
+    """
+    Write attributes of list of objects to a json file
+    :param cls_list: List of objects
+    :param filename: Name of the json file
+    """
+    data = [cls.__dict__ for cls in cls_list]
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+
+
 def scrap_market_insider_data():
     """
     Parse data from Market Insider resource and create 4 JSON files
@@ -213,15 +226,13 @@ def scrap_market_insider_data():
                                                 x.current_price),
                                  reverse=True)
     top_n_current_price = top_n_current_price[:TOP_N]
-    top_n_current_price_readable = [(comp.name, comp.current_price)
-                                    for comp in top_n_current_price]
+    serialize_objects(top_n_current_price, "Top_10_current_price.json")
 
     # Top-10 companies with lowest P/E ratio
     top_n_lowest_pe = sorted(companies_list,
                              key=lambda x: (x.pe is None, x.pe))
     top_n_lowest_pe = top_n_lowest_pe[:TOP_N]
-    top_n_lowest_pe_readable = [(comp.name, comp.pe)
-                                for comp in top_n_lowest_pe]
+    serialize_objects(top_n_lowest_pe, "Top_10_lowest_pe.json")
 
     # Top-10 companies with highest yearly price growth percent
     top_n_highest_growth = sorted(companies_list,
@@ -229,8 +240,7 @@ def scrap_market_insider_data():
                                                  x.year_change),
                                   reverse=True)
     top_n_highest_growth = top_n_highest_growth[:TOP_N]
-    top_n_highest_growth_readable = [(comp.name, comp.year_change)
-                                     for comp in top_n_highest_growth]
+    serialize_objects(top_n_highest_growth, "Top_10_highest_growth.json")
 
     # Top-10 companies for highest possible income
     top_n_for_income = sorted(companies_list,
@@ -244,18 +254,16 @@ def scrap_market_insider_data():
                               ),
                               reverse=True)
     top_n_for_income = top_n_for_income[:TOP_N]
-    top_n_for_income_readable = [(comp.name,
-                                  comp.val_highest - comp.val_lowest
-                                  if comp.val_highest is not None
-                                  and comp.val_lowest is not None
-                                  else None) for comp in top_n_for_income]
-
-    return (top_n_current_price_readable, top_n_lowest_pe_readable,
-            top_n_highest_growth_readable, top_n_for_income_readable)
+    serialize_objects(top_n_for_income, "Top_10_for_income.json")
 
 
 if __name__ == '__main__':
     time1 = time.time()
-    print(scrap_market_insider_data())
+    # *_, top_n_income = scrap_market_insider_data()
+    # print(top_n_income)
+    # comp1 = Company("Company", "CMP", 1900.0, 63.9, 20.0, 1800.0, 2000.0)
+    # comp2 = Company("Company2", "CMP2", 1500.0, 34.43, 10.0, 1400.0, 1600.0)
+    # serialize_objects([comp1, comp2], "test.json")
+    scrap_market_insider_data()
     time2 = time.time()
     print(time2 - time1)
