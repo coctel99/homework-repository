@@ -34,13 +34,15 @@ For requesting aiohttp
 """
 import asyncio
 import time
-
 import aiohttp
-from bs4 import BeautifulSoup, ResultSet
+from bs4 import BeautifulSoup, ResultSet, NavigableString
+from typing import Union
 from tqdm import tqdm
 
 WEB_URL = "https://markets.businessinsider.com"
 SNP_URL = WEB_URL + "/index/components/s&p_500?p="
+SLEEP_DELAY = 2
+TOP_N = 10
 
 
 # async def get_current_rate():
@@ -53,12 +55,14 @@ SNP_URL = WEB_URL + "/index/components/s&p_500?p="
 
 class Company:
     def __init__(self, name=None, code=None, current_price=None,
-                 pe=None, year_change=None):
+                 pe=None, year_change=None, val_lowest=None, val_highest=None):
         self.name = name
         self.code = code
         self.current_price = current_price
         self.pe = pe
         self.year_change = year_change
+        self.val_lowest = val_lowest
+        self.val_highest = val_highest
 
     # async def set_name(self, name):
     #     self.name = name
@@ -70,17 +74,50 @@ class Company:
     #     self.pe = pe
 
 
-async def parse_page(url: str):
+async def parse_page(url: str, delay=None):
     """
     Get html from url and asynchronously parse it with BeautifulSoup
+    :param delay: Amount of seconds to wait before reading the data
     :param url: URL address to check
     :return: BeautifulSoup parser object
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            # time.sleep(1)
+            if delay:
+                await asyncio.sleep(delay)
             data = await response.read()
     return BeautifulSoup(data, "html.parser")
+
+
+def _str_to_float(val: str):
+    """
+    Removes special symbols and converts a string to a float
+    :param val: String to convert
+    :return: Float number of string
+    """
+    val = val.strip()
+    # Remove comma and percent chars
+    val = val.replace(",", "").replace("%", "")
+    float_val = float(val)
+    return float_val
+
+
+def find_value_by_text(comp_snapshot_tag: Union[NavigableString,
+                                                BeautifulSoup], text: str):
+    """
+    Get value by tags' text
+    :param comp_snapshot_tag:
+    :param text: Tags' text
+    :return: Float value if tag if found, else None
+    """
+    tag = comp_snapshot_tag.find(text=text)
+    if not tag:
+        return None
+    tag = tag.find_parent(
+        class_="snapshot__data-item")
+    val = tag.contents[0]
+    val = _str_to_float(val)
+    return val
 
 
 async def get_comp_data(row: ResultSet):
@@ -108,25 +145,40 @@ async def get_comp_data(row: ResultSet):
             comp_code = comp_code_tag.text.split(", ")[1]
             comp.code = comp_code
 
+            # Sometimes we read HTML faster, that snapshot class is created
             comp_snapshot_tag = comp_page.find(class_="snapshot")
-            comp_pe_tag = comp_snapshot_tag.find(text="P/E Ratio")
-            if comp_pe_tag:
-                comp_pe_tag = comp_pe_tag.find_parent(
-                    class_="snapshot__data-item")
-                comp_pe = comp_pe_tag.contents[0].strip()
-            else:
-                comp_pe = None
-            comp.pe = comp_pe
+            if not comp_snapshot_tag:
+                # Second attempt to get the snapshot class tag with delay
+                comp_page = await parse_page(comp_url, SLEEP_DELAY)
+                print("SECOND TRY: ", comp_name)
+                comp_snapshot_tag = comp_page.find(class_="snapshot")
+            # comp_pe_tag = comp_snapshot_tag.find(text="P/E Ratio")
+            # Set pe to None if there are no P/E Ratio for this company
+            # if comp_pe_tag:
+            #     comp_pe_tag = comp_pe_tag.find_parent(
+            #         class_="snapshot__data-item")
+            #     comp_pe = _str_to_float(comp_pe_tag.contents[0])
+            # else:
+            #     comp_pe = None
+            comp.pe = find_value_by_text(comp_snapshot_tag,
+                                         "P/E Ratio")
 
-            comp_current_price = comp_snapshot_tag.find(text="Prev. Close")
-            comp_current_price = comp_current_price.find_parent(
-                class_="snapshot__data-item")
-            comp_current_price = comp_current_price.contents[0].strip()
-            comp.current_price = comp_current_price
+            # comp_val_highest_tag = comp_snapshot_tag.find(text="52 Week High")
+            # comp_val_highest_tag = comp_val_highest_tag.find_parent(
+            #     class_="snapshot__data-item")
+            # comp_val_highest = _str_to_float(comp_val_highest_tag.contents[0])
+            # comp.val_highest = comp_val_highest
+            comp.val_highest = find_value_by_text(comp_snapshot_tag,
+                                                  "52 Week High")
 
+            comp.val_lowest = find_value_by_text(comp_snapshot_tag,
+                                                 "52 Week Low")
+
+            comp.current_price = find_value_by_text(comp_snapshot_tag,
+                                                    "Prev. Close")
         if i == 7:
             comp_year_change = col.find_all("span")[1]
-            comp_year_change = comp_year_change.text
+            comp_year_change = _str_to_float(comp_year_change.text)
             comp.year_change = comp_year_change
         pass
 
@@ -194,7 +246,7 @@ async def get_market_data(url):
     # return companies_list
 
 
-async def get_data_from_urls():
+async def get_companies_list():
     """
     Get all Market Insider companies data
     :return:
@@ -219,12 +271,65 @@ async def get_data_from_urls():
 
     # for url, task in zip(urls, tasks):
     #     print(f"Url: {url}\nResponse: {task.result()}")
-    companies_names = [cmp.name for cmp in companies_list]
-    return companies_names
+    # companies_names = [comp.name for comp in companies_list]
+    return companies_list
+
+
+def scrap_market_insider_data():
+    """
+    Parse data from Market Insider resource and create 4 JSON files
+
+    1-st: Top-10 companies with highest current price
+    2-nd: Top-10 companies with lowest P/E ratio
+    3-rd: Top-10 companies with highest yearly price growth percent
+    4-th: Top-10 companies providing highest income if bought on minimum
+    and sold on maximum for the last year
+    """
+    companies_list = asyncio.run(get_companies_list())
+    # Top-10 companies with highest current price
+    top_n_current_price = sorted(companies_list, key=lambda x: x.current_price,
+                                 reverse=True)
+    top_n_current_price = top_n_current_price[:TOP_N]
+    top_n_current_price_readable = [(comp.name, comp.current_price)
+                                    for comp in top_n_current_price]
+
+    # Top-10 companies with lowest P/E ratio
+    top_n_lowest_pe = sorted(companies_list,
+                             key=lambda x: (x.pe is None, x.pe))
+    top_n_lowest_pe = top_n_lowest_pe[:TOP_N]
+    top_n_lowest_pe_readable = [(comp.name, comp.pe)
+                                for comp in top_n_lowest_pe]
+
+    # Top-10 companies with highest yearly price growth percent
+    top_n_highest_growth = sorted(companies_list, key=lambda x: x.year_change,
+                                  reverse=True)
+    top_n_highest_growth = top_n_highest_growth[:TOP_N]
+    top_n_highest_growth_readable = [(comp.name, comp.year_change)
+                                     for comp in top_n_highest_growth]
+
+    # Top-10 companies for highest possible income
+    top_n_for_income = sorted(companies_list,
+                              key=lambda x: (
+                                  x.val_highest is not None
+                                  and x.val_lowest is not None,
+                                  x.val_highest - x.val_lowest
+                                  if x.val_highest is not None
+                                  and x.val_lowest is not None
+                                  else None
+                              ),
+                              reverse=True)
+    top_n_for_income = top_n_for_income[:TOP_N]
+    top_n_for_income_readable = [(comp.name,
+                                  comp.val_highest - comp.val_lowest
+                                  if comp.val_highest is not None
+                                  and comp.val_lowest is not None
+                                  else None) for comp in top_n_for_income]
+
+    return top_n_for_income_readable
 
 
 if __name__ == '__main__':
     time1 = time.time()
-    print(asyncio.run(get_data_from_urls()))
+    print(scrap_market_insider_data())
     time2 = time.time()
     print(time2 - time1)
