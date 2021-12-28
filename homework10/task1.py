@@ -211,13 +211,10 @@ async def get_companies_list() -> list:
         companies_list.extend(companies)
         pass
 
-    # for url, task in zip(urls, tasks):
-    #     print(f"Url: {url}\nResponse: {task.result()}")
-    # companies_names = [comp.name for comp in companies_list]
     return companies_list
 
 
-def serialize_objects(cls_list: list, filename: str):
+def _serialize_objects(cls_list: list, filename: str):
     """
     Write attributes of list of objects to a json file
     :param cls_list: List of objects
@@ -226,6 +223,49 @@ def serialize_objects(cls_list: list, filename: str):
     data = [cls.__dict__ for cls in cls_list]
     with open(filename, 'w') as outfile:
         json.dump(data, outfile, indent=4)
+
+
+def get_top_n(companies_list: list, sort: str, top_n=TOP_N, serialize=False):
+    """
+    Get Top-N companies with highest current price
+    :param companies_list: List of Company objects
+    :param sort: Parameter to sort: "current_price", "lowest_pe",
+    "highest_growth", "most_profitable"
+    :param top_n: Number of companies from the top to take
+    :param serialize: Write objects to file if True
+    :return: Top-N companies with highest current price
+    """
+    acceptable_params = [
+        "current_price",
+        "lowest_pe",
+        "highest_growth",
+        "most_profitable"
+    ]
+    if sort not in acceptable_params:
+        raise AttributeError(f"Unknown sort parameter: {sort}")
+    if sort == "current_price":
+        top = sorted(companies_list,
+                     key=lambda x: (x.current_price is None, x.current_price),
+                     reverse=True)
+    if sort == "lowest_pe":
+        top = sorted(companies_list, key=lambda x: (x.pe is None, x.pe))
+    if sort == "highest_growth":
+        top = sorted(companies_list,
+                     key=lambda x: (x.year_change is None, x.year_change),
+                     reverse=True)
+    if sort == "most_profitable":
+        top = sorted(companies_list,
+                     key=lambda x: (x.val_highest is not None
+                                    and x.val_lowest is not None,
+                                    x.val_highest - x.val_lowest
+                                    if x.val_highest is not None
+                                    and x.val_lowest is not None
+                                    else None
+                                    ), reverse=True)
+    top = top[:top_n]
+    if serialize:
+        _serialize_objects(top, f"Top_{top_n}_current_price.json")
+    return top
 
 
 def scrap_market_insider_data():
@@ -239,50 +279,8 @@ def scrap_market_insider_data():
     and sold on maximum for the last year
     """
     companies_list = asyncio.run(get_companies_list())
-    # Top-10 companies with highest current price
-    top_n_current_price = sorted(companies_list,
-                                 key=lambda x: (x.current_price is None,
-                                                x.current_price),
-                                 reverse=True)
-    top_n_current_price = top_n_current_price[:TOP_N]
-    serialize_objects(top_n_current_price, "Top_10_current_price.json")
 
-    # Top-10 companies with lowest P/E ratio
-    top_n_lowest_pe = sorted(companies_list,
-                             key=lambda x: (x.pe is None, x.pe))
-    top_n_lowest_pe = top_n_lowest_pe[:TOP_N]
-    serialize_objects(top_n_lowest_pe, "Top_10_lowest_pe.json")
-
-    # Top-10 companies with highest yearly price growth percent
-    top_n_highest_growth = sorted(companies_list,
-                                  key=lambda x: (x.year_change is None,
-                                                 x.year_change),
-                                  reverse=True)
-    top_n_highest_growth = top_n_highest_growth[:TOP_N]
-    serialize_objects(top_n_highest_growth, "Top_10_highest_growth.json")
-
-    # Top-10 companies for highest possible income
-    top_n_for_income = sorted(companies_list,
-                              key=lambda x: (
-                                  x.val_highest is not None
-                                  and x.val_lowest is not None,
-                                  x.val_highest - x.val_lowest
-                                  if x.val_highest is not None
-                                  and x.val_lowest is not None
-                                  else None
-                              ),
-                              reverse=True)
-    top_n_for_income = top_n_for_income[:TOP_N]
-    serialize_objects(top_n_for_income, "Top_10_for_income.json")
-
-
-if __name__ == '__main__':
-    time1 = time.time()
-    # *_, top_n_income = scrap_market_insider_data()
-    # print(top_n_income)
-    # comp1 = Company("Company", "CMP", 1900.0, 63.9, 20.0, 1800.0, 2000.0)
-    # comp2 = Company("Company2", "CMP2", 1500.0, 34.43, 10.0, 1400.0, 1600.0)
-    # serialize_objects([comp1, comp2], "test.json")
-    scrap_market_insider_data()
-    time2 = time.time()
-    print(time2 - time1)
+    get_top_n(companies_list, "current_price", serialize=True)
+    get_top_n(companies_list, "lowest_pe", serialize=True)
+    get_top_n(companies_list, "highest_growth", serialize=True)
+    get_top_n(companies_list, "most_profitable", serialize=True)
