@@ -152,7 +152,6 @@ async def get_comp_data(row: ResultSet, exchange_rate=None) -> object:
             if not comp_snapshot_tag:
                 # Second attempt to get the snapshot class tag with delay
                 comp_page = await parse_page(comp_url, SLEEP_DELAY)
-                print("SECOND TRY: ", comp_name)
                 comp_snapshot_tag = comp_page.find(class_="snapshot")
             comp.pe = find_value_by_text(comp_snapshot_tag,
                                          "P/E Ratio")
