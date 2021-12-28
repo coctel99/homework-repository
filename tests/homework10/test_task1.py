@@ -1,10 +1,7 @@
-import os
 import json
-from homework10.task1 import (
-    TOP_N,
-    Company,
-    get_top_n,
-)
+import os
+
+from homework10.task1 import TOP_N, Company, get_top_n
 
 COMPANIES = [
     Company("Company1", "CMP1", 1900.0, 63.9, 20.0, 1800.0, 2000.0),
