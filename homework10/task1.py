@@ -33,8 +33,8 @@ For scrapping you cans use beautifulsoup4
 For requesting aiohttp
 """
 import asyncio
-import time
 import json
+import time
 from typing import Union
 
 import aiohttp
@@ -43,6 +43,8 @@ from tqdm import tqdm
 
 WEB_URL = "https://markets.businessinsider.com"
 SNP_URL = WEB_URL + "/index/components/s&p_500?p="
+CBR_URL = "http://www.cbr.ru/scripts/XML_daily.asp"
+USD_VALUTE_ID = "R01235"
 SLEEP_DELAY = 2
 TOP_N = 10
 
@@ -57,6 +59,18 @@ class Company:
         self.year_change = year_change
         self.val_lowest = val_lowest
         self.val_highest = val_highest
+
+
+async def get_exchange_rate() -> float:
+    """
+    Get dollar to rubble exchange rate from central bank
+    :return: Current exchange rate
+    """
+    page = await parse_page(CBR_URL)
+    valute_tag = page.find(id=USD_VALUTE_ID)
+    rate = valute_tag.find("value").text
+    rate = float(rate.replace(",", "."))
+    return rate
 
 
 async def parse_page(url: str, delay=None) -> BeautifulSoup:
@@ -108,13 +122,14 @@ def find_value_by_text(comp_snapshot_tag: Union[NavigableString,
     return val
 
 
-async def get_comp_data(row: ResultSet) -> object:
+async def get_comp_data(row: ResultSet, exchange_rate=None) -> object:
     """
     Get company info
 
     Take company link from the first column and parse this company page
     to get its name, code and P/E Ratio. Then take yearly price change
     in percents from the last column.
+    :param exchange_rate: Current usd to rub exchange rate from central bank
     :param row: Row of data table
     :return: Company object with parsed attributes
     """
@@ -148,6 +163,8 @@ async def get_comp_data(row: ResultSet) -> object:
                                                  "52 Week Low")
             comp.current_price = find_value_by_text(comp_snapshot_tag,
                                                     "Prev. Close")
+            if exchange_rate:
+                comp.current_price *= exchange_rate
         if i == 7:
             comp_year_change = col.find_all("span")[1]
             comp_year_change = _str_to_float(comp_year_change.text)
@@ -183,10 +200,12 @@ async def get_companies_list() -> list:
     await asyncio.gather(*page_tasks)
 
     table_pages = [page_task.result() for page_task in page_tasks]
+    exchange_rate = await get_exchange_rate()
 
     companies_list = []
     for page in tqdm(table_pages):
-        row_tasks = [asyncio.create_task(get_comp_data(row)) for row in page]
+        row_tasks = [asyncio.create_task(get_comp_data(row, exchange_rate))
+                     for row in page]
         await asyncio.gather(*row_tasks)
         companies = [row_task.result() for row_task in row_tasks]
         companies_list.extend(companies)
