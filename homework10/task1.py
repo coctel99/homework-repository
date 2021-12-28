@@ -34,7 +34,6 @@ For requesting aiohttp
 """
 import asyncio
 import json
-import time
 from typing import Union
 
 import aiohttp
