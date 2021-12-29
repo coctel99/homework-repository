@@ -21,31 +21,14 @@ class SizesEnum(metaclass=SimplifiedEnum):
 assert ColorsEnum.RED == "RED"
 assert SizesEnum.XL == "XL"
 """
-from enum import Enum
 
 
 # Metaclass
 class SimplifiedEnum(type):
     def __new__(mcs, name, bases, clsdict):
-        cls = super().__new__(mcs, name, bases, clsdict)
-        for key in getattr(cls, f"_{name}__keys"):
-            setattr(cls, key, key)
-        return cls
-
-
-class ColorsEnum(Enum):
-    RED = "RED"
-    BLUE = "BLUE"
-    ORANGE = "ORANGE"
-    BLACK = "BLACK"
-
-
-class ColorsEnumSimple(metaclass=SimplifiedEnum):
-    __keys = ("RED", "BLUE", "ORANGE", "BLACK")
-
-
-if __name__ == "__main__":
-    a = ColorsEnum
-    print(a.RED.value)
-    b = ColorsEnumSimple
-    print(b.RED)
+        cls_instance = super().__new__(mcs, name, bases, clsdict)
+        cls_keys = f"_{name}__keys"
+        if getattr(cls_instance, cls_keys, None):
+            for key in getattr(cls_instance, cls_keys):
+                setattr(cls_instance, key, key)
+        return cls_instance
