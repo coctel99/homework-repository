@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 
-from homework12.classes import HomeworkResult, Student, Teacher, Homework, User
+from homework12.classes import Homework, HomeworkResult, Student, Teacher, User
 from homework12.create_records import fill_tables_with_data
 from homework12.create_structures import create_tables
 from homework12.orm import db_name
