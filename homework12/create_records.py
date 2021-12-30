@@ -12,8 +12,7 @@ def fill_tables_with_data():
     homework = teacher.create_homework("text", 5)
     session.add(homework)
 
-    homework_result = student.do_homework(homework,
-                                          "I have done this hw")
+    homework_result = student.do_homework(homework, "I have done this hw")
     session.add(homework_result)
 
     teacher.check_homework(homework_result)
