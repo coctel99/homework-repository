@@ -1,8 +1,7 @@
 import datetime
 from collections import defaultdict
 
-from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Interval,
-                        String)
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Interval, String
 from sqlalchemy.orm import backref, declarative_base, relationship
 
 MIN_SOLUTION_LEN = 5
