@@ -1,26 +1,25 @@
 import datetime
 from collections import defaultdict
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Interval, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import backref, declarative_base, relationship
 
 MIN_SOLUTION_LEN = 5
-Base = declarative_base()
+BASE = declarative_base()
 
 
 class DeadlineError(Exception):
-    print("You are late")
+    pass
 
 
-class Homework(Base):
+class Homework(BASE):
     __tablename__ = "homeworks"
     id = Column(Integer, primary_key=True)
-    author_id = Column(Integer, ForeignKey("teachers.id"), nullable=False)
     text = Column(String)
-    deadline = Column(Interval)
+    deadline = Column(DateTime)
     created = Column(DateTime)
     homework_results = relationship("HomeworkResult",
-                                    backref=backref("homeworks"))
+                                    backref=backref("homework"))
 
     def __init__(self, text, deadline, created):
         self.text = text
@@ -32,10 +31,10 @@ class Homework(Base):
         Checks if homework is active (deadline haven't passed)
         :return: Is homework active or not
         """
-        return self.created + self.deadline > datetime.datetime.today()
+        return self.deadline > datetime.datetime.today()
 
 
-class HomeworkResult(Base):
+class HomeworkResult(BASE):
     __tablename__ = "homeworks_results"
     id = Column(Integer, primary_key=True)
     author_id = Column(Integer, ForeignKey("students.id"), nullable=False)
@@ -53,7 +52,7 @@ class HomeworkResult(Base):
         self.created = datetime.datetime.today()
 
 
-class User(Base):
+class User(BASE):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     first_name = Column(String)
@@ -73,6 +72,8 @@ class User(Base):
 class Student(User):
     __tablename__ = "students"
     id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    student_first_name = Column(String)
+    student_last_name = Column(String)
     homework_results = relationship("HomeworkResult",
                                     backref=backref("author"))
     __mapper_args__ = {
@@ -86,14 +87,14 @@ class Student(User):
         """
         if homework.is_active():
             return HomeworkResult(self, homework, solution)
-        raise DeadlineError
+        raise DeadlineError("You are late!")
 
 
 class Teacher(User):
     __tablename__ = 'teachers'
     id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    homeworks = relationship("Homework",
-                             backref=backref("author"))
+    teacher_first_name = Column(String)
+    teacher_last_name = Column(String)
     __mapper_args__ = {
         "polymorphic_identity": "teacher",
     }
@@ -108,12 +109,12 @@ class Teacher(User):
         :param deadline: Deadline of the homework
         :return: New Homework class instance
         """
-        deadline = datetime.timedelta(days=deadline)
-        created = datetime.datetime.today()
+        created = datetime.datetime.now()
+        deadline = created + datetime.timedelta(days=deadline)
         return Homework(text, deadline, created)
 
     @staticmethod
-    def check_homework(hw_result: HomeworkResult):
+    def check_homework(hw_result: type(HomeworkResult)):
         """
         Check if homework solution length is correct
         If homework solution length is more than 5 it returns true

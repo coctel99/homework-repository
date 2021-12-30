@@ -16,7 +16,9 @@ Creation date, Teacher name who created homework.
 Utilize ORM capabilities as much as possible, avoiding executing raw SQL
 queries.
 """
+from homework12.create_records import fill_tables_with_data
 from homework12.create_structures import create_tables
 
 if __name__ == "__main__":
     create_tables()
+    fill_tables_with_data()

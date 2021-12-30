@@ -1,11 +1,9 @@
 from typing import List
 
-from sqlalchemy import Table, create_engine
+from sqlalchemy import Table
 
-from homework12.classes import Base
-
-DB_NAME = "main.db"
-ENGINE = create_engine(f"sqlite:///{DB_NAME}")
+from homework12.classes import BASE
+from homework12.orm import engine
 
 
 def create_tables() -> List[Table]:
@@ -13,9 +11,9 @@ def create_tables() -> List[Table]:
     Create tables in database for all classes
     :return: List of created tables
     """
-    tables = Base.metadata.sorted_tables
-    with ENGINE.connect():
-        Base.metadata.create_all(ENGINE)
+    tables = BASE.metadata.sorted_tables
+    with engine.connect():
+        BASE.metadata.create_all(engine)
     return tables
 
 
@@ -24,10 +22,10 @@ def delete_tables(tables: List[Table]):
     Delete specified tables
     :param tables: List of tables
     """
-    with ENGINE.connect():
-        Base.metadata.drop_all(ENGINE, tables, checkfirst=True)
+    with engine.connect():
+        BASE.metadata.drop_all(engine, tables, checkfirst=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tbls = create_tables()
     # delete_tables(tbls)
