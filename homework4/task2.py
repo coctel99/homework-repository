@@ -19,8 +19,8 @@ You will learn:
 59
 * https://docs.python.org/3/library/urllib.request.html#urllib.request.urlopen
 """
-import urllib
-from urllib.request import URLError
+import urllib.request
+from urllib.error import URLError
 
 
 def count_dots_on_i(url: str) -> int:
@@ -29,12 +29,12 @@ def count_dots_on_i(url: str) -> int:
     :param url: URL to check
     :return: Number of 'i' letters
     """
+    number_of_i = 0
     try:
-        number_of_i = 0
         contents = urllib.request.urlopen(url, timeout=10).readlines()
-        for line in contents:
-            line = str(line).strip()
-            number_of_i += line.count("i")
-        return number_of_i
     except URLError:
         raise ValueError(f"Unreachable {url}")
+    for line in contents:
+        line = str(line).strip()
+        number_of_i += line.count("i")
+    return number_of_i
