@@ -77,8 +77,3 @@ def read_file(file_path: str) -> type(TextReader):
         TextReader.non_ascii_chars_most_common = max(non_ascii_chars,
                                                      key=non_ascii_chars.get)
         return TextReader
-
-
-if __name__ == "__main__":
-    text = read_file("data.txt")
-    print(text.non_ascii_chars_most_common)
