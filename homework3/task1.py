@@ -25,7 +25,6 @@ Would give out cached value up to times number only. Example:
     ? 2
     '2'
 """
-
 from functools import wraps
 from typing import Callable
 
@@ -62,12 +61,10 @@ def cache_number_of_times(times: int = None):
             if times is not None:
                 cached_times -= 1
                 if cached_times < 0:
-                    cached[args] = None
-            if args in cached:
-                return cached[args]
-            else:
+                    cached.pop(args, "None")
+                    cached_times = times
+            if args not in cached:
                 cached[args] = func(*args)
-                return func(*args)
+            return cached[args]
         return wrapper
-
     return cache
