@@ -7,7 +7,7 @@ Given a file containing text. Complete using only default collections:
     5) Find most common non ascii char for document
 """
 import string
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import List, TextIO
 from unicodedata import category
 
