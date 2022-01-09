@@ -17,7 +17,7 @@ def test_custom_range_string_2_param():
 def test_custom_range_string_3_param():
     """Testing that custom range function makes range from one arg
     to another with specified step from string."""
-    rng = make_custom_range("abcdefghijklmnopqrstuvwxyz","g", "p", 2)
+    rng = make_custom_range("abcdefghijklmnopqrstuvwxyz", "g", "p", 2)
     assert rng == ['g', 'i', 'k', 'm', 'o']
 
 
