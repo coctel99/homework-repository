@@ -20,41 +20,50 @@ assert = custom_range(string.ascii_lowercase, 'p', 'g', -2) == /
 from typing import Iterable, List
 
 
-def make_custom_range(iterable: Iterable[any],
-                      iter_range: any, *args) -> List[any]:
+def make_custom_range(iterable: Iterable[any], bound: any,
+                      second_bound: any = None,
+                      step: int = None) -> List[any]:
     """
-
     Get arranged list from any iterable. Works backwards too
 
-    No args: Get a list from 0 element of given iterable to the given
-    iter_range value
+    Specified bound: Get a list from 0 element of given iterable to the given
+    bound value
 
-    1 args: Get a list from given iterable from iter_range to the args value
+    Specified bound and second_bound: Get a list from given iterable from
+    bound to the second_bound value
 
-    2 args: Get a list from given iterable from iter_range to the args 1st
-    value with step of args 2nd value
+    Specified bound, second_bound and step: Get a list from given iterable
+    from bound to the second_bound value with period of step value
 
     :param iterable: Any iterable of values
-    :param iter_range: End of the range value if no args, otherwise the
+    :param bound: End of the range value if no other args, otherwise the
     beginning of the range
-    :param args: Optional. 1st - end of the range value, 2nd - step size
+    :param second_bound: If specified, end of the range
+    :param step: If specified, iteration period
     :return: A range from given iterable
     """
     iterable = list(iterable)
-    if not args:
-        end_index = iterable.index(iter_range)
-        return iterable[:end_index]
-    if len(args) > 2:
-        args = args[:3]
-    if len(args) < 2:
-        step = 1
+    if not bound or not bound and not second_bound:
+        raise ValueError("Range bounds are not specified.")
+
+    # Two-bound range
+    bound_index = iterable.index(bound)
+    if not second_bound:
+        second_bound_index = bound_index
+        bound_index = 0
     else:
-        step = args[1]
-    if args[0] > iter_range:
-        start_index = iterable.index(iter_range)
-        end_index = iterable.index((args[0]))
-        return iterable[start_index:end_index:step]
+        second_bound_index = iterable.index(second_bound)
+
+    # Check if normal or inverted range
+    if second_bound and bound_index > second_bound_index:
+        if step is None:
+            step = -1
+        if step > 0:
+            raise ValueError("For inverted range step should be negative.")
     else:
-        start_index = iterable.index((args[0]))
-        end_index = iterable.index(iter_range)
-        return iterable[start_index:end_index:step]
+        if step is None:
+            step = 1
+        if step < 0:
+            raise ValueError("Negative step value for not inverted range.")
+
+    return iterable[bound_index:second_bound_index:step]
