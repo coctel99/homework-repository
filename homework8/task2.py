@@ -2,61 +2,58 @@ import sqlite3
 from typing import Iterator
 
 
-def _create_connection(db):
-    """Establish database connection."""
-    conn = sqlite3.connect(db)
-    return conn.cursor()
+class DBConnector(object):
+    def __new__(cls, db):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(DBConnector, cls).__new__(cls)
+        return cls.instance
 
+    def __init__(self, db):
+        conn = sqlite3.connect(db)
+        self.cursor = conn.cursor()
 
-def _get_db_value(db, table_name, name_value):
-    """Update instance collection value with db value."""
-    cursor = _create_connection(db)
-    cursor.execute(f"SELECT * from {table_name} where name = '{name_value}'")
-    return cursor.fetchone()
+    def get_db_value(self, table_name, name_value):
+        """Get table value from database by name."""
+        self.cursor.execute(f"SELECT * from {table_name} "
+                            f"where name = '{name_value}'")
+        return self.cursor.fetchone()
 
+    def get_db_data(self, table_name):
+        """Get all rows of specified table from database."""
+        self.cursor.execute(f"SELECT * from {table_name}")
+        return self.cursor.fetchall()
 
-def _update_values_from_db(db, table_name):
-    """Update all instance collection values."""
-    cursor = _create_connection(db)
-    cursor.execute(f"SELECT * from {table_name}")
-    return cursor.fetchall()
+    def get_table_number_of_rows(self, table_name):
+        """Get number of rows in the specified table."""
+        self.cursor.execute(f"SELECT count(*) from {table_name}")
+        return self.cursor.fetchone()[0]
 
 
 class TableData:
     def __init__(self, database_name, table_name):
-        self.collection = {}
+        self.conn = DBConnector(database_name)
         self.database_name = database_name
         self.table_name = table_name
-        cursor = _create_connection(database_name)
-        cursor.execute(f'SELECT * from {table_name}')
-        while row := cursor.fetchone():
-            # Assuming that table key column is the first one
-            key = row[0]
-            self.collection.update({key: row})
+
+    @property
+    def collection(self):
+        data = self.conn.get_db_data(self.table_name)
+        return data
 
     def __iter__(self) -> Iterator:
-        data = _update_values_from_db(self.database_name, self.table_name)
-        for row in data:
-            key = row[0]
-            self.collection.update({key: row})
-        return iter(self.collection.values())
+        return iter(self.collection)
 
     def __contains__(self, item: object) -> bool:
-        cursor = _create_connection(self.database_name)
-        cursor.execute(f"SELECT * from {self.table_name} where name ='{item}'")
-        db_row = cursor.fetchone()
+        db_row = self.conn.get_db_value(self.table_name, item)
         return True if db_row else False
 
     def __len__(self) -> int:
-        cursor = _create_connection(self.database_name)
-        cursor.execute(f"SELECT count(*) from {self.table_name}")
-        length = cursor.fetchone()[0]
+        length = self.conn.get_table_number_of_rows(self.table_name)
         return length
 
     def __getitem__(self, item: object):
         # We don't have to update all collection if we need only one element
-        val = _get_db_value(self.database_name, self.table_name, item)
+        val = self.conn.get_db_value(self.table_name, item)
         if not val:
             raise ValueError(f'{item} not in collection')
-        self.collection.update({item: val})
-        return self.collection.get(item)
+        return val
