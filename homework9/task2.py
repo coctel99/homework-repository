@@ -8,20 +8,20 @@ import contextlib
 
 
 class Suppressor:
-    def __init__(self, exception: type(Exception)):
-        self.exception = exception
+    def __init__(self, *exceptions: type(Exception)):
+        self.exceptions = exceptions
 
     def __enter__(self):
         pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.exception is exc_type:
+        if exc_type in self.exceptions:
             return True
 
 
 @contextlib.contextmanager
-def suppress_exception(exception: type(Exception)):
+def suppress_exception(*exceptions: type(Exception)):
     try:
         yield
-    except exception:
+    except exceptions:
         pass
