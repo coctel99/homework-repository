@@ -12,25 +12,23 @@ def test_initialize_homework():
     homework = Homework(text="some text",
                         deadline=datetime.timedelta(days=5),
                         created=datetime.datetime(2021, 11, 29, 18, 0, 0))
-    assert homework.text == "some text" and \
-           homework.deadline == datetime.timedelta(days=5) and \
-           homework.created == datetime.datetime(2021, 11, 29, 18, 0, 0)
+    assert (homework.text == "some text"
+            and homework.deadline == datetime.timedelta(days=5)
+            and homework.created == datetime.datetime(2021, 11, 29, 18, 0, 0))
 
 
 def test_initialize_student():
     """Testing that Student instance is initialized with specified
     attributes."""
     student = Student("Roman", "Petrov")
-    assert student.first_name == "Roman" and \
-           student.last_name == "Petrov"
+    assert student.first_name == "Roman" and student.last_name == "Petrov"
 
 
 def test_initialize_teacher():
     """Testing that Teacher instance is initialized with specified
     attributes."""
     teacher = Teacher("Daniil", "Shadrin")
-    assert teacher.first_name == "Daniil" and \
-           teacher.last_name == "Shadrin"
+    assert teacher.first_name == "Daniil" and teacher.last_name == "Shadrin"
 
 
 def test_do_active_homework():
@@ -112,8 +110,8 @@ def test_multiple_teachers_share_storage_for_checked_homework():
 
     opp_teacher.check_homework(hw_result_1)
     advanced_python_teacher.check_homework(hw_result_2)
-    assert Teacher.homework_done.get(oop_hw) and \
-           Teacher.homework_done.get(docs_hw)
+    assert (Teacher.homework_done.get(oop_hw)
+            and Teacher.homework_done.get(docs_hw))
 
 
 def test_reset_all_results():
@@ -141,5 +139,5 @@ def test_reset_specific_result():
     teacher.check_homework(hw_result_1)
     teacher.check_homework(hw_result_2)
     Teacher.reset_results(oop_hw)
-    assert not Teacher.homework_done.get(oop_hw) and \
-           Teacher.homework_done.get(docs_hw)
+    assert (not Teacher.homework_done.get(oop_hw)
+            and Teacher.homework_done.get(docs_hw))
