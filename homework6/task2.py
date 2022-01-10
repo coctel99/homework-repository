@@ -43,6 +43,8 @@ PEP8 соблюдать строго.
 import datetime
 from collections import defaultdict
 
+MIN_SOLUTION_LEN = 5
+
 
 class DeadlineError(Exception):
     print('You are late')
@@ -106,7 +108,7 @@ class Teacher(User):
         return Homework(text, deadline, created)
 
     @staticmethod
-    def check_homework(hw_result: HomeworkResult):
+    def check_homework(hw_result: type(HomeworkResult)):
         """
         Check if homework solution length is correct
 
@@ -119,7 +121,7 @@ class Teacher(User):
         :return: True if homework result solution is more than 5, else
         return false
         """
-        if len(hw_result.solution) <= 5:
+        if len(hw_result.solution) <= MIN_SOLUTION_LEN:
             return False
 
         Teacher.homework_done[hw_result.homework] = hw_result
@@ -135,5 +137,7 @@ class Teacher(User):
         If Homework is passed: Remove specific homework from dict
         :param homework: Homework to remove
         """
-        Teacher.homework_done.pop(homework, None) if \
-            homework else Teacher.homework_done.clear()
+        if homework:
+            Teacher.homework_done.pop(homework, None)
+        else:
+            Teacher.homework_done.clear()
