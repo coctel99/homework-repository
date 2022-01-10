@@ -15,17 +15,25 @@ def find_occurrences(tree: dict, element: Any) -> int:
     :param element: Element to find
     :return: Number of occurrences of element in dict
     """
-    number_of_occurrences = 0
+    if tree is element:
+        return 1
+
     if isinstance(tree, dict):
-        for val in tree.values():
-            if val == element:
-                number_of_occurrences += 1
-            else:
-                number_of_occurrences += find_occurrences(val, element)
+        list_of_values = [*tree.values()]
     elif isinstance(tree, (list, tuple, set)):
-        for val in tuple(tree):
-            number_of_occurrences += find_occurrences(val, element)
+        list_of_values = list(tree)
     else:
-        if element == tree and type(element) == type(tree):
+        # If not iterable element and not a target element
+        return 0
+
+    number_of_occurrences = 0
+    for val in list_of_values:
+        if val is tree:
+            # If value is a link to iterable itself, skip this value
+            pass
+        elif val is element:
             number_of_occurrences += 1
+        else:
+            number_of_occurrences += find_occurrences(val, element)
+
     return number_of_occurrences
