@@ -11,10 +11,28 @@ def test_suppress_exception_with_class():
     assert value == 0
 
 
+def test_suppress_multiple_exceptions_with_class():
+    """Testing that no exception occurred."""
+    value = 0
+    with Suppressor(IndexError, ZeroDivisionError):
+        value += 1 / 0
+        value += [][2]
+    assert value == 0
+
+
 def test_suppress_exception_with_function():
     """Testing that no exception occurred."""
     value = 0
     with suppress_exception(IndexError):
+        value += [][2]
+    assert value == 0
+
+
+def test_suppress_multiple_exceptions_with_function():
+    """Testing that no exception occurred."""
+    value = 0
+    with suppress_exception(IndexError, ZeroDivisionError):
+        value += 1 / 0
         value += [][2]
     assert value == 0
 
