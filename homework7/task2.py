@@ -13,6 +13,20 @@ Examples:
     Output: False
     Explanation: s becomes "c" while t becomes "b".
 """
+from itertools import zip_longest
+
+
+def get_next_backwards(text: str):
+    backspaces_number = 0
+    for char in reversed(text):
+        if char == "#":
+            backspaces_number += 1
+            continue
+        elif backspaces_number:
+            backspaces_number -= 1
+            continue
+        else:
+            yield char
 
 
 def backspace_compare(first: str, second: str) -> bool:
@@ -23,17 +37,13 @@ def backspace_compare(first: str, second: str) -> bool:
     :return: True if the first string is equal to the second,
     otherwise return False
     """
-    buffer_first = []
-    buffer_second = []
-    for char in first:
-        if buffer_first and char == "#":
-            buffer_first.pop(-1)
-        if char != "#":
-            buffer_first.append(char)
+    for char_first, char_second in zip_longest(get_next_backwards(first),
+                                               get_next_backwards(second)):
+        if char_first != char_second:
+            return False
+    return True
 
-    for char in second:
-        if buffer_second and char == "#":
-            buffer_second.pop(-1)
-        if char != "#":
-            buffer_second.append(char)
-    return buffer_first == buffer_second
+
+if __name__ == "__main__":
+    comp = backspace_compare("##acdc##", "#ad#c")
+    print(comp)
