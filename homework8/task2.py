@@ -42,15 +42,14 @@ class TableData:
         return iter(self.collection.values())
 
     def __contains__(self, item: object) -> bool:
-        data = _update_values_from_db(self.database_name, self.table_name)
-        for row in data:
-            key = row[0]
-            self.collection.update({key: row})
-        return True if item in self.collection else False
+        cursor = _create_connection(self.database_name)
+        cursor.execute(f"SELECT * from {self.table_name} where name ='{item}'")
+        db_row = cursor.fetchone()
+        return True if db_row else False
 
     def __len__(self) -> int:
         cursor = _create_connection(self.database_name)
-        cursor.execute(f'SELECT count(*) from {self.table_name}')
+        cursor.execute(f"SELECT count(*) from {self.table_name}")
         length = cursor.fetchone()[0]
         return length
 
