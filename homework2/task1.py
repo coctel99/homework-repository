@@ -57,17 +57,15 @@ def read_file(file_path: str) -> type(TextReader):
             # If character is a unicode Letter character
             if category(char).startswith("L"):
                 word += char
-            else:
-                if word:
-                    if word not in unique_words:
-                        unique_words.update({word: len(set(word))})
-                    word = ""
+            elif word:
+                if word not in unique_words:
+                    unique_words.update({word: len(set(word))})
+                word = ""
             rarest_chars[char] = rarest_chars.get(char, 0) + 1
             if category(char).startswith("P"):
                 punct_chars_number += 1
             if char not in ascii_chars:
                 non_ascii_chars[char] = non_ascii_chars.get(char, 0) + 1
-            pass
         most_diverse = sorted(unique_words, key=unique_words.get,
                               reverse=True)
         TextReader.most_diverse = most_diverse[:NUMBER_OF_DIVERSE_WORDS]
