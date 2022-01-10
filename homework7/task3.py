@@ -15,6 +15,7 @@ Example:
      [x, x, x]]
      Return value should be "x wins!"
 """
+from itertools import chain
 from typing import List
 
 
@@ -25,38 +26,16 @@ def tic_tac_toe_checker(board: List[List]) -> str:
     :return: "x wins!" when 3 "x" in one line, "o wins!" when
     3 "o" in one line, "draw!" when
     """
-    diagonal = []
-    antidiaginal = []
+    rows = [row for row in board]
+    cols = [col for col in zip(*board)]
+    main_diag = [[board[i][i] for i in range(len(board))]]
+    anti_diag = [[board[i][-i - 1] for i in range(len(board))]]
+    lines = list(chain(rows, cols, main_diag, anti_diag))
+    board_string = [char for row in board for char in row]
 
-    # check horizontal lines
-    for idx, row in enumerate(board):
-        diagonal.append(row[idx])
-        antidiaginal.append(row[-idx - 1])
-        if all([row[i] == "x" for i in range(len(row))]):
-            return "x wins!"
-        if all([row[i] == "o" for i in range(len(row))]):
-            return "o wins!"
-
-    # check vertical lines
-    for col in zip(*board):
-        if all([col[i] == "x" for i in range(len(col))]):
-            return "x wins!"
-        if all([col[i] == "o" for i in range(len(col))]):
-            return "o wins!"
-
-    # check main diagonal lines
-    if all([diagonal[i] == "x" for i in range(len(diagonal))]):
-        return "x wins!"
-    if all([diagonal[i] == "o" for i in range(len(diagonal))]):
-        return "o wins!"
-
-    # check antidiagonal lines
-    if all([antidiaginal[i] == "x" for i in range(len(antidiaginal))]):
-        return "x wins!"
-    if all([antidiaginal[i] == "o" for i in range(len(antidiaginal))]):
-        return "o wins!"
-
-    # check unfinished
-    if any("-" in row for row in board):
+    for line in lines:
+        if len(set(line)) == 1 and line[0] != "-":
+            return f"{line[0]} wins!"
+    if "-" in board_string:
         return "unfinished!"
     return "draw!"
