@@ -49,11 +49,10 @@ class TableData:
         return True if item in self.collection else False
 
     def __len__(self) -> int:
-        data = _update_values_from_db(self.database_name, self.table_name)
-        for row in data:
-            key = row[0]
-            self.collection.update({key: row})
-        return len(self.collection)
+        cursor = _create_connection(self.database_name)
+        cursor.execute(f'SELECT count(*) from {self.table_name}')
+        length = cursor.fetchone()[0]
+        return length
 
     def __getitem__(self, item: object):
         # We don't have to update all collection if we need only one element
