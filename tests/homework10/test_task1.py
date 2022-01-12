@@ -1,7 +1,8 @@
 import json
 import os
 
-from homework10.task1 import TOP_N, Company, get_top_n
+from homework10.task1 import Company
+from homework10.top import TOP_N, get_top_n
 
 COMPANIES = [
     Company("Company1", "CMP1", 1900.0, 63.9, 20.0, 1800.0, 2000.0),
@@ -31,7 +32,7 @@ def test_get_top_n_lowest_pe():
     comp_sorted = sorted(COMPANIES, key=lambda x: (x.pe is None, x.pe))
     comp_data = [comp.__dict__ for comp in comp_sorted]
     get_top_n(COMPANIES, "lowest_pe", serialize=True)
-    json_file = f"Top_{TOP_N}_current_price.json"
+    json_file = f"Top_{TOP_N}_lowest_pe.json"
     with open(json_file) as fi:
         data = json.load(fi)
         assert comp_data == data
@@ -46,7 +47,7 @@ def test_get_top_n_highest_growth():
                          reverse=True)
     comp_data = [comp.__dict__ for comp in comp_sorted]
     get_top_n(COMPANIES, "highest_growth", serialize=True)
-    json_file = f"Top_{TOP_N}_current_price.json"
+    json_file = f"Top_{TOP_N}_highest_growth.json"
     with open(json_file) as fi:
         data = json.load(fi)
         assert comp_data == data
@@ -66,7 +67,7 @@ def test_get_top_n_most_profitable():
                                         else None), reverse=True)
     comp_data = [comp.__dict__ for comp in comp_sorted]
     get_top_n(COMPANIES, "most_profitable", serialize=True)
-    json_file = f"Top_{TOP_N}_current_price.json"
+    json_file = f"Top_{TOP_N}_most_profitable.json"
     with open(json_file) as fi:
         data = json.load(fi)
         assert comp_data == data
