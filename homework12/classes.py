@@ -53,16 +53,7 @@ class HomeworkResult(BASE):
 
 
 class User(BASE):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String)
-    last_name = Column(String)
-    type = Column(String)
-
-    __mapper_args__ = {
-        'polymorphic_identity': 'user',
-        'polymorphic_on': type
-    }
+    __abstract__ = True
 
     def __init__(self, first_name: str, last_name: str):
         self.first_name = first_name
@@ -71,14 +62,11 @@ class User(BASE):
 
 class Student(User):
     __tablename__ = "students"
-    id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    student_first_name = Column(String)
-    student_last_name = Column(String)
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String)
+    last_name = Column(String)
     homework_results = relationship("HomeworkResult",
                                     backref=backref("author"))
-    __mapper_args__ = {
-        "polymorphic_identity": "student",
-    }
 
     def do_homework(self, homework: Homework, solution: str):
         """
@@ -92,12 +80,9 @@ class Student(User):
 
 class Teacher(User):
     __tablename__ = 'teachers'
-    id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    teacher_first_name = Column(String)
-    teacher_last_name = Column(String)
-    __mapper_args__ = {
-        "polymorphic_identity": "teacher",
-    }
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String)
+    last_name = Column(String)
 
     homework_done = defaultdict(HomeworkResult)
 
