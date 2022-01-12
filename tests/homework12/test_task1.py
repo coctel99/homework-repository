@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 
-from homework12.classes import Homework, HomeworkResult, Student, Teacher, User
+from homework12.classes import Homework, HomeworkResult, Student, Teacher
 from homework12.create_records import fill_tables_with_data
 from homework12.create_structures import create_tables
 from homework12.orm import db_name
@@ -16,7 +16,7 @@ def test_if_tables_created():
     engine = create_engine(f"sqlite:///{db_name}")
     table_names = inspect(engine).get_table_names()
     assert table_names == ["homeworks", "homeworks_results",
-                           "students", "teachers", "users"]
+                           "students", "teachers"]
 
 
 def test_if_values_filled():
@@ -33,12 +33,10 @@ def test_if_values_filled():
     homework_result__rows_num = session.query(HomeworkResult).count()
     student_rows_num = session.query(Student).count()
     teacher_rows_num = session.query(Teacher).count()
-    user_rows_num = session.query(User).count()
     session.commit()
     session.close()
-    assert (homework_rows_num > 0 and homework_result__rows_num > 0
-            and student_rows_num > 0 and teacher_rows_num > 0
-            and user_rows_num > 0)
+    assert all([homework_rows_num, homework_result__rows_num,
+                student_rows_num, teacher_rows_num])
 
 
 def test_if_same_values():
