@@ -77,7 +77,7 @@ def test_if_same_values():
     session.commit()
     session.close()
 
-    assert (db_hw_result_author_id == 1
+    assert (db_hw_result_author_id == hw_author_id
             and db_hw_result_text == hw_result_text)
 
 
