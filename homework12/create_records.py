@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from homework12.models import Student, Teacher, Homework, HomeworkResult
+from homework12.models import Homework, HomeworkResult, Student, Teacher
 from homework12.orm import session
 
 
