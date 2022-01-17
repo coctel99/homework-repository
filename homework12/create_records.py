@@ -1,21 +1,19 @@
-from homework12.classes import Student, Teacher
+from datetime import datetime, timedelta
+
+from homework12.models import Student, Teacher, Homework, HomeworkResult
 from homework12.orm import session
 
 
 def fill_tables_with_data():
-    student = Student("Roman", "Petrov")
-    session.add(student)
-
-    teacher = Teacher("Daniil", "Shadrin")
-    session.add(teacher)
-
-    homework = teacher.create_homework("text", 5)
-    session.add(homework)
-
-    homework_result = student.do_homework(homework, "I have done this hw")
-    session.add(homework_result)
-
-    teacher.check_homework(homework_result)
+    records = [
+        Student(first_name="Roman", last_name="Petrov"),
+        Teacher(first_name="Daniil", last_name="Shadrin"),
+        Homework(text="text",
+                 deadline=datetime.today().date() + timedelta(days=6)),
+        HomeworkResult(author_id=1, homework_id=1,
+                       solution="I have done this hw.")
+    ]
+    session.add_all(records)
     session.commit()
 
 
