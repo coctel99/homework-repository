@@ -30,13 +30,13 @@ class User(Base):
     last_name = Column(String)
 
 
-class Student(User):
+class Student(Base):
     __tablename__ = "students"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
 
 
-class Teacher(User):
+class Teacher(Base):
     __tablename__ = 'teachers'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)

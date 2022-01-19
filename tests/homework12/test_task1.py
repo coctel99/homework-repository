@@ -59,10 +59,10 @@ def test_if_same_values():
     hw_result_text = "I have done this hw"
 
     records = [
-        Student(first_name=student_first_name,
-                last_name=student_last_name),
-        Teacher(first_name=teacher_first_name,
-                last_name=teacher_last_name),
+        User(first_name=student_first_name, last_name=student_last_name),
+        Student(user_id=1),
+        User(first_name=teacher_first_name, last_name=teacher_last_name),
+        Teacher(user_id=2),
         Homework(text=hw_text,
                  deadline=datetime.today().date() + timedelta(days=6)),
         HomeworkResult(author_id=hw_author_id, homework_id=hw_id,
